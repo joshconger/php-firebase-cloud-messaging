@@ -142,6 +142,12 @@ class Message implements \JsonSerializable
             throw new \UnexpectedValueException('Message must have at least one recipient');
         }
 
+        if(count($this->recipients) > 1){
+            $jsonData['registration_ids'] = $this->createRegistrationIds();
+        }elseif(count($this->recipients) == 1){
+            $jsonData['to'] = $this->createTo();
+        }
+
         $jsonData['to'] = $this->createTo();
         if ($this->collapseKey) {
             $jsonData['collapse_key'] = $this->collapseKey;
@@ -157,6 +163,14 @@ class Message implements \JsonSerializable
         }
 
         return $jsonData;
+    }
+
+    public function createRegistrationIds(){
+        $tokens = array();
+        foreach($this->recipients as $recipient){
+            array_push($tokens,$recipient->getToken());
+        }
+        return $tokens;
     }
 
     private function createTo()
